@@ -70,21 +70,45 @@ const app = express();
 // )
 
 
-app.use("/admin",adminAuth);
-app.use("/user",userAuth);
+// app.use("/admin",adminAuth);
+// app.use("/user",userAuth);
 
 
-app.get("/admin/getAllData",(req,res,next)=>{
-    res.send("all data sent");
+// app.get("/admin/getAllData",(req,res,next)=>{
+//     res.send("all data sent");
+// })
+// app.get("/admin/deleteAllData",(req,res,next)=>{
+//     res.send(" delete all data");
+// })
+// app.get("/user/deleteAllData",(req,res,next)=>{
+//     res.send(" delete all the user data");
+// })
+
+// ERROR HANDLING MIDDLEWARE
+app.use("/", (err,req,res,next)=>{
+    if(err){
+        res.status(501).send("bhaiya koi dikkat hai")
+    }
 })
-app.get("/admin/deleteAllData",(req,res,next)=>{
-    res.send(" delete all data");
-})
-app.get("/user/deleteAllData",(req,res,next)=>{
-    res.send(" delete all the user data");
+
+
+app.get("/getUserData", (req,res)=>{
+    try{
+        throw new Error("dnfifi");
+        res.send("all data sent");
+    }
+    catch(err){
+      res.status(500).send("some error occured");
+    }
+
 })
 
 
+app.use("/", (err,req,res,next)=>{
+    if(err){
+        res.status(501).send("bhaiya koi dikkat hai")
+    }
+})
 app.listen(5000, ()=>{
     console.log("this is good");
     
