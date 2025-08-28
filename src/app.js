@@ -20,6 +20,40 @@ app.post('/signup', async(req,res)=>{
     }
 })
 
+//get user by emailId
+app.get('/user', async(req,res)=>{
+    const userEmail = req.body.emailId;
+    try{
+        if(!userEmail){
+            res.status(400).send("something went wrong");
+        }else{
+             const users = await  User.find({emailId:userEmail});
+              res.send(users)
+        }
+}catch(err){
+    res.status(400).send("something went wrong");
+}
+    })
+
+//Feed API -- GET /feed -get all the data from the user
+app.get('/feed',async(req,res)=>{
+
+    try {
+
+        const users = await User.find({});
+        res.send(users);
+        
+    } catch (err) {
+        res.status(400).send("something went wrong");
+    }
+
+});
+
+
+
+
+
+
 
 connectDB()
 .then(()=>{
