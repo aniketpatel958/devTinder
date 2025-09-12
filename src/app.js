@@ -1,24 +1,67 @@
-const express = require ('express');
+const express = require ("express");
 const connectDB = require("./config/database");
 const app = express();
 const User = require("./models/user");
+const {validateSignUpData} = require("./utils/validation");
+const bcrypt = require("bcrypt");
 
 app.use(express.json());
 
 
 app.post('/signup', async(req,res)=>{
+   try {
+    //VALIDATION OF DATA
+    validateSignUpData(req);
+
+    const {firstName,lastName,password,emailId} = req.body;
+
+    //encryption
+    const passwordHash =  await bcrypt.hash(password,10);
+    console.log(passwordHash);
+    
     
     //creating the new instance of te User Model
-    const user = new User(req.body); 
-    try {
-        await user.save()
+    
+    const user = new User({
+        firstName,
+        lastName,
+        password:passwordHash,
+        emailId,
+    }); 
+    await user.save()
     res.send("User signed up successfully")
     }
     catch(err){
-        res.status(400).send("error");
+        res.status(400).send({error:err.message});
         
     }
 })
+
+
+
+app.post('/Login', async(req,res)=>{
+
+    try {
+        
+   const {emailId,password} = req.body;
+
+   const user = await User.findOne({emailId:emailId});
+   if(!user){
+    throw new Error("Invalid Credentials");
+   }
+
+   const isPasswordValid = await bcrypt.compare(password,user.password);
+
+   if(isPasswordValid){
+    res.send("Login Successfully!!!")
+   }else{
+    res.status(400).send("Invalid Credentials")
+   }
+    
+}catch (err) {
+        res.status(400).send({error:err.message})
+    }
+});
 
 //get user by emailId
 app.get('/user', async(req,res)=>{
@@ -77,7 +120,7 @@ app.patch('/user/:userId',async(req,res)=>{
     const data = req.body;
     try {
 
-        USER_ALLOWED_UPDATES = ["firstName","lastName","password","age"];
+        USER_ALLOWED_UPDATES = ["firstName","lastName","password","age","emailId"];
         const updates = Object.keys(data).every((k)=>
             USER_ALLOWED_UPDATES.includes(k)
         );
